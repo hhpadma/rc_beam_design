@@ -1,9 +1,9 @@
 from math import sqrt
 from functools import cached_property
 from abc import ABC, abstractmethod
-from rebar import BarFunction, BarTag, RebarCatalog, BarStressState
-from mat_concrete import Concrete
-from mat_steel import Steel
+from beam_design.rebar import BarFunction, BarStressState, BarTag, RebarCatalog
+from beam_design.mat_concrete import Concrete
+from beam_design.mat_steel import Steel
 
 
 class HookRule(ABC):

@@ -31,6 +31,10 @@ class BarProperties:
     area_in2: float
     unit_weight_kg_per_in: float
 
+    @property
+    def mark(self) -> str:
+        return f"D{self.tag.value}"
+
 
 class RebarCatalog:
     """
@@ -42,23 +46,41 @@ class RebarCatalog:
     """
 
     _bars = {
-        BarTag.B8:  BarProperties(BarTag.B8,  0.31496063, 0.077965156, 0.010035569),
-        BarTag.B10: BarProperties(BarTag.B10, 0.393700787, 0.121365243, 0.015675813),
-        BarTag.B12: BarProperties(BarTag.B12, 0.472440945, 0.17515035,  0.022560976),
-        BarTag.B16: BarProperties(BarTag.B16, 0.62992126,  0.311550623, 0.040142276),
-        BarTag.B20: BarProperties(BarTag.B20, 0.787401575, 0.486700973, 0.062754065),
-        BarTag.B25: BarProperties(BarTag.B25, 0.984251969, 0.761051522, 0.097815041),
-        BarTag.B28: BarProperties(BarTag.B28, 1.102362205, 0.95480191,  0.123094512),
-        BarTag.B32: BarProperties(BarTag.B32, 1.25984252,  1.246202492, 0.160315041),
-        BarTag.B40: BarProperties(BarTag.B40, 1.57480315,  1.946803894, 0.25050813),
+        BarTag.B8:  BarProperties(BarTag.B8,  0.31496063, 0.077965, 0.010036),
+        BarTag.B10: BarProperties(BarTag.B10, 0.39370079, 0.121365, 0.015676),
+        BarTag.B12: BarProperties(BarTag.B12, 0.47244094, 0.175130, 0.022561),
+        BarTag.B16: BarProperties(BarTag.B16, 0.62992126, 0.311551, 0.040142),
+        BarTag.B20: BarProperties(BarTag.B20, 0.78740157, 0.486701, 0.062754),
+        BarTag.B25: BarProperties(BarTag.B25, 0.98425197, 0.761052, 0.097815),
+        BarTag.B28: BarProperties(BarTag.B28, 1.10236220, 0.954802, 0.123095),
+        BarTag.B32: BarProperties(BarTag.B32, 1.25984252, 1.246202, 0.160315),
+        BarTag.B40: BarProperties(BarTag.B40, 1.57480315, 1.946804, 0.250508),
     }
 
     @classmethod
-    def get(cls, tag: BarTag) -> BarProperties:
+    def get(cls, tag: BarTag | int | str) -> BarProperties:
+        tag = cls.coerce_tag(tag)
         try:
             return cls._bars[tag]
         except KeyError:
             raise ValueError(f"Bar tag {tag} not found in catalog")
+
+    @classmethod
+    def coerce_tag(cls, tag: BarTag | int | str) -> BarTag:
+        if isinstance(tag, BarTag):
+            return tag
+        if isinstance(tag, int):
+            return BarTag(tag)
+        if isinstance(tag, str):
+            normalized = tag.strip().upper().replace("#", "").replace("D", "").replace("B", "")
+            if normalized.startswith("Ø"):
+                normalized = normalized[1:]
+            return BarTag(int(normalized))
+        raise TypeError(f"Unsupported bar tag type: {type(tag)!r}")
+
+    @classmethod
+    def all(cls) -> tuple[BarProperties, ...]:
+        return tuple(cls._bars[tag] for tag in sorted(cls._bars))
 
 
 if __name__ == "__main__":
